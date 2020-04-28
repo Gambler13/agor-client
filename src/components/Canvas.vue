@@ -2,7 +2,10 @@
   <div class="hello">
     <input type="text" v-model="message">
     Coordinates: {{coordinates.x}} / {{coordinates.y}}
-    <button @click="drawRect">emit</button>
+    Player ID: {{gameStats.PlayerId}} <br>
+    Mass: {{gameStats.Mass}} <br>
+    Food Eaten: {{gameStats.FoodEaten}} <br>
+Players: {{gameStats.NumPlayers}} <br>
     <div>
       <canvas
         id="canvas"
@@ -22,6 +25,7 @@ export default {
       message: "",
       vueCanvas: null,
       canvasRect: null,
+      gameStats: {PlayerId: 0, Mass: 0, FoodEaten: 0},
       coordinates: { x: 0.0, y: 0.0 }
     };
   },
@@ -43,9 +47,9 @@ export default {
       console.log(JSON.stringify(this.canvasRect));
 
       this.coordinates.x =
-        1 / (event.clientX - this.canvasRect.left - this.canvasRect.width / 2);
+        (event.clientX - this.canvasRect.left - this.canvasRect.width / 2);
       this.coordinates.y =
-        1 / (event.clientY - this.canvasRect.top - this.canvasRect.height / 2);
+        (event.clientY - this.canvasRect.top - this.canvasRect.height / 2);
       this.throttle(this.emitEvent(), 100);
     },
     drawRect() {
@@ -101,6 +105,9 @@ export default {
         this.vueCanvas.fill();
         this.vueCanvas.restore() 
       }
+
+this.gameStats = JSON.parse(data[2])
+
     }
   }
 };

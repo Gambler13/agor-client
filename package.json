@@ -9,8 +9,12 @@
   },
   "dependencies": {
     "core-js": "^3.6.4",
+    "dotenv-webpack": "^1.7.0",
+    "msgpack-lite": "^0.1.26",
     "vue": "^2.6.11",
-    "vue-socket.io": "^3.0.7"
+    "vue-socket.io": "^3.0.7",
+    "vue-socket.io-extended": "^4.0.1",
+    "what-the-pack": "^2.0.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.3.0",

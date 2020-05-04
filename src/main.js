@@ -1,15 +1,20 @@
 import Vue from 'vue'
 import App from './App.vue'
 
-import VueSocketIO from 'vue-socket.io';
+import VueSocketIO from 'vue-socket.io-extended';
+require('dotenv').config();
 
+console.log("------->"+process.env.VUE_APP_SERVER)
 
+import io from 'socket.io-client';
 
-Vue.use(new VueSocketIO({
-  debug: true,
-  connection: 'http://localhost:8008',
-  options: { path: "/socket/" } //Optional options
-}))
+let url = process.env.VUE_APP_SERVER
+
+const socket = io(url, {
+  path: "/socket/"
+});
+
+Vue.use(VueSocketIO, socket)
 
 Vue.config.productionTip = false
 

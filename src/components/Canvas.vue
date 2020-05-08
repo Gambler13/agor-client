@@ -46,7 +46,19 @@ export default {
   },
   methods: {
     emitEvent() {
-      this.$socket.client.emit("position", JSON.stringify(this.coordinates));
+
+      var coords = new Float32Array(2)
+      //coords[0] = 5.0
+      coords[0] = this.coordinates.x
+      coords[1] = this.coordinates.y
+      //coords[1] = 5.2264512425
+
+      if (Number.isNaN(this.coordinates.x) || Number.isNaN(this.coordinates.y)){
+        console.log("NaN")
+        return
+      }
+
+      this.$socket.client.emit("position", new Buffer(coords.buffer));
     },
     updateCoordinates: function(event) {
       // pass event object, bound to mouse move with updat
@@ -61,15 +73,6 @@ export default {
       this.coordinates.y =
         event.clientY - this.canvasRect.top - this.canvasRect.height / 2;
       this.throttle(this.emitEvent(), 100);
-    },
-    drawRect() {
-      // clear canvas
-      this.vueCanvas.clearRect(0, 0, 800, 600);
-
-      // draw rect
-      this.vueCanvas.beginPath();
-      this.vueCanvas.rect(0, 0, 200, 100);
-      this.vueCanvas.stroke();
     },
     throttle(func, wait) {
       var timeout;

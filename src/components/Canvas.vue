@@ -23,6 +23,8 @@
 </template>
 
 <script>
+const lut = require("../assets/lut.json");
+
 export default {
   data() {
     return {
@@ -33,29 +35,31 @@ export default {
       coordinates: { x: 0.0, y: 0.0 },
       dX: 0,
       dY: 0,
-      entities: []
+      entities: [],
+      imgPattern: null
     };
   },
   mounted() {
     var c = document.getElementById("canvas");
     var ctx = c.getContext("2d");
     this.vueCanvas = ctx;
+    const pattern = this.createPattern()
+    this.imgPattern = ctx.createPattern(pattern, "repeat");
   },
   created() {
     this.interval = setInterval(() => this.drawEntities(), 30);
   },
   methods: {
     emitEvent() {
+      var coords = new Float32Array(2);
+      coords[0] = this.coordinates.x;
+      coords[1] = this.coordinates.y;
 
-      var coords = new Float32Array(2)
-      //coords[0] = 5.0
-      coords[0] = this.coordinates.x
-      coords[1] = this.coordinates.y
-      //coords[1] = 5.2264512425
-
-      if (Number.isNaN(this.coordinates.x) || Number.isNaN(this.coordinates.y)){
-        console.log("NaN")
-        return
+      if (
+        Number.isNaN(this.coordinates.x) ||
+        Number.isNaN(this.coordinates.y)
+      ) {
+        return;
       }
 
       this.$socket.client.emit("position", new Buffer(coords.buffer));
@@ -92,10 +96,12 @@ export default {
     },
     drawEntities() {
       this.vueCanvas.clearRect(0, 0, 800, 600);
+
       this.vueCanvas.save();
       this.vueCanvas.scale(2, 2);
       this.vueCanvas.translate(this.dX, this.dY);
-      this.vueCanvas.fillStyle = "#FFFFFF";
+      //this.vueCanvas.fillStyle = "#FFFFFF";
+      this.vueCanvas.fillStyle = this.imgPattern;
       this.vueCanvas.rect(0, 0, 1200, 900);
       this.vueCanvas.fill();
       this.vueCanvas.stroke();
@@ -104,10 +110,30 @@ export default {
         this.vueCanvas.beginPath();
         this.vueCanvas.arc(e.X, e.Y, e.Radius, 0, 2 * Math.PI);
         //this.vueCanvas.fillStyle = e.Color;
-        this.vueCanvas.fillStyle = "#FF00BB";
+        if (e.Color < lut.length) {
+          this.vueCanvas.fillStyle = lut[e.Color];
+        } else {
+          this.vueCanvas.fillStyle = "#FF00BB";
+        }
         this.vueCanvas.fill();
       }
       this.vueCanvas.restore();
+    },
+    createPattern() {
+      var pattern = document.createElement("canvas");
+      pattern.width = 40;
+      pattern.height = 40;
+      var pctx = pattern.getContext("2d");
+
+      pctx.beginPath();
+      pctx.rect(0, 0, 100, 100);
+      pctx.lineWidth = 8;
+      pctx.strokeStyle = "rgb(156, 156, 156)";
+      pctx.lineJoin = "miter";
+      pctx.miterLimit = 4.0;
+      pctx.stroke();
+
+      return pattern;
     }
   },
   sockets: {
@@ -134,7 +160,6 @@ export default {
         };
         this.entities.push(ent);
       }
-
 
       this.dX = -center.X + 800.0 / 4.0;
       this.dY = -center.Y + 600.0 / 4.0;
